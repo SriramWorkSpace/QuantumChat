@@ -4,7 +4,7 @@ QuantumChat is a domain-specific, corpus-based Question Answering (QA) applicati
 
 ## Architecture and Workflow
 
-The system operates as an Extractive Question Answering / Semantic Search engine. It is divided into two primary phases: Data Ingestion and Retrieval.
+The system operates as an Extractive Question Answering / Semantic Search engine. It is divided into three primary phases: Data Ingestion, Application Startup, and Retrieval.
 
 ### 1. Data Ingestion (Scraping and Extraction)
 
@@ -16,16 +16,21 @@ The knowledge base is built and maintained through `build_corpus.py`. This orche
 **The Ingestion Process:**
 1.  **Extraction:** Dedicated scraper modules fetch raw text from the defined web pages and files.
 2.  **Chunking:** The continuous text is segmented into smaller, contextually complete chunks (such as paragraphs) to ensure high search precision.
-3.  **Embedding:** Each chunk is processed using the `sentence-transformers` library (specifically the `all-MiniLM-L6-v2` model). This converts the human-readable text into a dense, high-dimensional vector.
-4.  **Storage:** The original text chunks, source metadata, and the calculated vectors are serialized and saved locally to `corpus/corpus.json`.
+3.  **Storage:** The cleaned text chunks and their source metadata are serialized and saved locally to `corpus/corpus.json`. No vectors or embeddings are created during this phase.
 
-### 2. Retrieval Workflow (How Questions Are Answered)
+### 2. Application Startup (In-Memory Embedding)
+
+To keep the system lightweight without needing a dedicated vector database on disk, embeddings are computed dynamically at runtime.
+1.  **Loading:** When `app.py` is launched, `chatbot/retriever.py` loads the raw text chunks from `corpus.json` into memory.
+2.  **On-the-fly Vectorization:** Every text chunk is processed using the `sentence-transformers` library (specifically the `all-MiniLM-L6-v2` model) to create dense, high-dimensional vectors. These vectors are retained in the application's RAM for the duration of the user session.
+
+### 3. Retrieval Workflow (How Questions Are Answered)
 
 When a question is submitted through the Streamlit graphical interface (`app.py`), the application executes the following sequence:
 
 1.  **Query Processing:** The user's input string is captured and passed to the backend.
 2.  **Query Vectorization:** The `chatbot/retriever.py` module passes the question through the identical `sentence-transformers` model to generate a query embedding.
-3.  **Semantic Search:** The system executes a Cosine Similarity search, comparing the multidimensional angle of the query vector against every pre-calculated vector stored in the corpus.
+3.  **Semantic Search:** The system executes a Cosine Similarity search, comparing the multidimensional angle of the query vector against every in-memory vector computed during startup.
 4.  **Ranking:** The system ranks the corpus chunks based on their similarity scores. Chunks with vectors closest to the query vector are identified as the most mathematically and semantically relevant.
 5.  **Response Generation:** The top N resulting chunks—alongside their confidence scores and original source metadata—are returned to the frontend. The chat interface displays these unedited, highly-relevant excerpts directly to the user as the answer.
 
