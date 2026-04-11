@@ -19,6 +19,9 @@ from scraper.scrape_wikipedia import scrape_wikipedia
 from scraper.scrape_ibm import scrape_ibm
 from scraper.scrape_aws import scrape_aws
 from scraper.extract_pdf import extract_pdf
+from scraper.scrape_azure import scrape_azure
+from scraper.scrape_dst import scrape_dst
+from scraper.scrape_ibm_blog import scrape_ibm_blog
 
 
 def build_corpus():
@@ -34,10 +37,13 @@ def build_corpus():
     os.makedirs("data", exist_ok=True)
 
     steps = [
-        ("[1/4] Scraping Wikipedia...",   scrape_wikipedia),
-        ("[2/4] Scraping IBM Think...",   scrape_ibm),
-        ("[3/4] Scraping AWS...",         scrape_aws),
-        ("[4/4] Extracting NASA PDF...",  extract_pdf),
+        ("[1/7] Scraping Wikipedia...",   scrape_wikipedia),
+        ("[2/7] Scraping IBM Think...",   scrape_ibm),
+        ("[3/7] Scraping AWS...",         scrape_aws),
+        ("[4/7] Extracting NASA PDF...",  extract_pdf),
+        ("[5/7] Scraping Microsoft Azure...", scrape_azure),
+        ("[6/7] Scraping DST NQM...",     scrape_dst),
+        ("[7/7] Scraping IBM Quantum Blog...", scrape_ibm_blog),
     ]
 
     for label, fn in steps:

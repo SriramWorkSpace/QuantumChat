@@ -377,7 +377,6 @@ hr {
 }
 
 /* Layout overrides */
-[data-testid="stHeader"] { display: none !important; }
 footer { display: none !important; }
 .stApp > header { background-color: transparent !important; }
 .block-container { padding-top: 2rem !important; padding-bottom: 2rem !important; max-width: 900px !important; }
